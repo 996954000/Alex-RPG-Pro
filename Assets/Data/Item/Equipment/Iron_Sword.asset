@@ -16,3 +16,42 @@ MonoBehaviour:
   icon: {fileID: 1526008332, guid: a9ca9a41598dd2e44b125928045c518f, type: 3}
   category: 0
   equipmentType: 1
+  strength:
+    value: 4
+    modifier: []
+  agility:
+    value: 0
+    modifier: []
+  intelligence:
+    value: 0
+    modifier: []
+  endurance:
+    value: 0
+    modifier: []
+  maxHealth:
+    value: 0
+    modifier: []
+  armor:
+    value: 0
+    modifier: []
+  magicResistance:
+    value: 0
+    modifier: []
+  avoidChance:
+    value: 0
+    modifier: []
+  physicalDamage:
+    value: 10
+    modifier: []
+  fireDamage:
+    value: 0
+    modifier: []
+  iceDamage:
+    value: 0
+    modifier: []
+  lightDamage:
+    value: 0
+    modifier: []
+  criticalChance:
+    value: 0
+    modifier: []

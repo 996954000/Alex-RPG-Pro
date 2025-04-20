@@ -17,5 +17,6 @@ public class InventoryItem
     public void AddStack() => stackSize++;
     public void RemoveStack() => stackSize--;
 
-
+    public void AddStackByNum(int num) => stackSize += num;
+    public void RemoveStackByNum(int num) => stackSize -= num;
 }

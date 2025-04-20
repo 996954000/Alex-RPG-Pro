@@ -6,6 +6,7 @@ using TMPro;
 using Unity.VisualScripting;
 using static UnityEditor.Progress;
 using static UnityEngine.Rendering.DebugUI;
+using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 public class Inventory : MonoBehaviour 
 {
@@ -84,75 +85,75 @@ public class Inventory : MonoBehaviour
     }
 
     /* 背包添加物品 */
-    public void AddItem(ItemData _item)
+    public void AddItem(ItemData _item, int num = 1)
     {
         if (_item != null)
         {
             if (_item.category == Category.Equipment)
             {
-                AddInventoryItem(_item);
+                AddInventoryItem(_item, num);
             }
             else if (_item.category == Category.Material)
             {
-                AddStashItem(_item);
+                AddStashItem(_item, num);
             }
         }
     }
     /* 添加材料  AddItem*/
-    private void AddStashItem(ItemData _item)
+    private void AddStashItem(ItemData _item, int num = 1)
     {
         if (stashDictionary.TryGetValue(_item, out InventoryItem value))
         {
-            value.AddStack();
+            value.AddStackByNum(num);
         }
         else
         {
             InventoryItem newItem = new InventoryItem(_item);
             stashItems.Add(newItem);
             stashDictionary.Add(_item, newItem);
-            newItem.AddStack();
+            newItem.AddStackByNum(num);
         }
         UpdateStashItemSlots();
     }
     /* 添加装备  AddItem*/
-    private void AddInventoryItem(ItemData _item)
+    private void AddInventoryItem(ItemData _item, int num = 1)
     {
         if (inventoryDictionary.TryGetValue(_item, out InventoryItem value))
         {
-            value.AddStack();
+            value.AddStackByNum(num);
         }
         else
         {
             InventoryItem newItem = new InventoryItem(_item);
             inventoryItems.Add(newItem);
             inventoryDictionary.Add(_item, newItem);
-            newItem.AddStack();
+            newItem.AddStackByNum(num);
         }
         UpdateInventoryItemSlots();
     }
     /* 背包移除物品  */
-    public void RemoveItem(ItemData _item)
+    public void RemoveItem(ItemData _item, int num = 1)
     {
         if (_item != null)
         {
             if (_item.category == Category.Equipment)
             {
-                RemoveInventoryItem(_item);
+                RemoveInventoryItem(_item, num);
             }
             else if (_item.category == Category.Material)
             {
-                RemoveStashItem(_item);
+                RemoveStashItem(_item, num);
             }
         }
     }
     /* 装备背包移除装备 RemoveItem*/
-    public void RemoveInventoryItem(ItemData _item)
+    public void RemoveInventoryItem(ItemData _item, int num = 1)
     {
         
         if (inventoryDictionary.TryGetValue(_item, out InventoryItem value))
         {
-            if (value.stackSize > 1)
-                value.RemoveStack();
+            if (value.stackSize > num)
+                value.RemoveStackByNum(num);
             else
             {
                 inventoryItems.Remove(value);
@@ -162,13 +163,13 @@ public class Inventory : MonoBehaviour
         UpdateInventoryItemSlots();
     }
     /* 材料背包移除材料 RemoveItem*/
-    public void RemoveStashItem(ItemData _item)
+    public void RemoveStashItem(ItemData _item, int num = 1)
     {
 
         if (stashDictionary.TryGetValue(_item, out InventoryItem value))
         {
-            if (value.stackSize > 1)
-                value.RemoveStack();
+            if (value.stackSize > num)
+                value.RemoveStackByNum(num);
             else
             {
                 stashItems.Remove(value);
@@ -179,7 +180,7 @@ public class Inventory : MonoBehaviour
     }
 
     /* 装备物品 */
-    public void EquipItem(ItemData _item)
+    public void EquipItem(ItemData _item, int num = 1)
     {
         ItemData_Equipment equipingItem = _item as ItemData_Equipment;
         
@@ -188,7 +189,6 @@ public class Inventory : MonoBehaviour
         {
             if (equipmentItems.Count > 0)
             {
-                Debug.Log("EquipItem-Get>0");
                 InventoryItem tempItem = null;
                 /* 遍历已装备栏 */
                 foreach (InventoryItem item in equipmentItems)
@@ -203,49 +203,81 @@ public class Inventory : MonoBehaviour
                 }/* 若有需要进行替换的装备 */
                 if (tempItem != null)
                 {
-                    /* 装备栏中移除该装备 并在背包中添加该装备*/
-                    equipmentItems.Remove(tempItem);
-                    AddInventoryItem(tempItem.itemData);
+                    /* 装备栏中移除该装备 并在背包中添加该装备，Remove函数中已经自动加了，其实感觉叫收回装备更好
+                     UnEquipItem*/
+                    UnEquipItem((ItemData_Equipment)tempItem.itemData, num);
                 }
-                
+
             }
             /* 装备栏添加装备 */
-            equipmentItems.Add(value);
+            EquipItem((ItemData_Equipment)value.itemData, num);
             /* 装备背包移除装备 */
-            RemoveInventoryItem(value.itemData);
+            RemoveInventoryItem(value.itemData, num);
         }
+        
+    }
+
+    /* 添加至装备栏并应用修改器 */
+    public void EquipItem(ItemData_Equipment _item, int num = 1)
+    {
+        /* 装备我想不进行堆叠，后面再写吧*/
+        InventoryItem inventoryItem = new InventoryItem(_item);
+        inventoryItem.AddStackByNum(num);
+        equipmentDictionary.Add(_item, inventoryItem);
+        equipmentItems.Add(inventoryItem);
+        
+        /* 应用修改器 */
+        if (_item != null)
+        {
+            _item.AddModifier();
+        }
+
+        /* 更新装备栏信息 */
+        UpdateEquipmentItemSlots();
+    }
+    /* 移除装备并应用修改器 */
+    public void UnEquipItem(ItemData_Equipment _item, int num = 1)
+    {
+        if (equipmentDictionary.TryGetValue(_item, out InventoryItem inventoryItem))
+        {
+            inventoryItem.RemoveStackByNum(num);
+            equipmentDictionary.Remove(_item);
+            equipmentItems.Remove(inventoryItem);
+        }
+
+        /* 应用修改器 */
+        if (_item != null)
+        {
+            _item.RemoveModifier();
+        }
+
+        /* 装备返回背包 */
+        AddInventoryItem(_item);
+
         /* 更新装备栏信息 */
         UpdateEquipmentItemSlots();
     }
 
-    /* 添加至装备栏并应用修改器 */
-    public void AddEquipItem(ItemData _item)
-    {
-        
-    }
-    /* 移除装备并应用修改器 */
-
     /* 更新装备背包 */
     public void UpdateInventoryItemSlots() {
-        if (inventoryItems.Count != 0 && uI_InventorySlots.Length != 0) {
-            for (int i = 0; i < uI_InventorySlots.Length; i++)
-            {
-                if (i < inventoryItems.Count)
-                    uI_InventorySlots[i].UpdateItemSlot(inventoryItems[i]);
-                else
-                    uI_InventorySlots[i].UpdateItemSlot(null);
-            }
+        for (int i = 0; i < uI_InventorySlots.Length; i++)
+        {
+            if (i < inventoryItems.Count)
+                uI_InventorySlots[i].UpdateItemSlot(inventoryItems[i]);
+            else
+                uI_InventorySlots[i].UpdateItemSlot(null);
         }
     }
 
     /* 更新物品仓库 */
     public void UpdateStashItemSlots()
     {
-        uI_StashSlots = stashSlotsParents.GetComponentsInChildren<UI_ItemSlot>();
-
-        for (int i = 0; i < stashItems.Count; i++)
+        for (int i = 0; i < uI_StashSlots.Length; i++)
         {
-            uI_StashSlots[i].UpdateItemSlot(stashItems[i]);
+            if (i < stashItems.Count)
+                uI_StashSlots[i].UpdateItemSlot(stashItems[i]);
+            else
+                uI_StashSlots[i].UpdateItemSlot(null);
         }
     }
 
@@ -253,26 +285,68 @@ public class Inventory : MonoBehaviour
     public void UpdateEquipmentItemSlots()
     {
         Debug.Log("UpdateEquipmentItemSlots");
-        foreach (InventoryItem inventoryItem in equipmentItems)
+        if (equipmentItems.Count > 0)
         {
-            ItemData_Equipment itemData_Equipment = inventoryItem.itemData as ItemData_Equipment;
             foreach (UI_EquipmentItemSlot slot in uI_EquipSlots)
             {
-                /* 对号入座 */
-                if (slot.equipmentType == itemData_Equipment.equipmentType)
+                bool flag = false;
+                foreach (InventoryItem inventoryItem in equipmentItems)
                 {
-                    Debug.Log("equipmentType right");
-                    slot.itemData = itemData_Equipment;
-                    slot.UpdateItemSlot(inventoryItem);
+                    ItemData_Equipment itemData_Equipment = inventoryItem.itemData as ItemData_Equipment;
+                    /* 对号入座 */
+                    if (slot.equipmentType == itemData_Equipment.equipmentType)
+                    {
+                        Debug.Log("equipmentType right");
+                        slot.itemData = itemData_Equipment;
+                        slot.UpdateItemSlot(inventoryItem);
+                        flag = true;
+                    }
                 }
-                else
+                if (flag == false)
                 {
-                    Debug.Log("equipmentType false");
                     slot.itemData = null;
+                    slot.UpdateItemSlot(null);
                 }
+            }
+        }
+        else
+        {
+            foreach (UI_EquipmentItemSlot slot in uI_EquipSlots)
+            {
+                slot.itemData = null;
+                slot.UpdateItemSlot(null);
             }
         }
     }
     
+    /* 工艺材料判断是否充足，这里的num就是批量制作的标志了吧
+     * 先关注做单个的*/
+    public bool CanCraft(ItemData _item, int count = 1)
+    {
+        bool flag = true;
+        foreach(CraftMaterial craftMaterial in _item.craftMaterials)
+        {
+            if (stashDictionary.TryGetValue(craftMaterial.itemData, out InventoryItem inventoryItem))
+            {
+                Debug.Log("CanCraft getValue");
+                if (inventoryItem.stackSize < craftMaterial.num * count)
+                    flag = false;
+            }else
+            {
+                flag = false;
+            }
+        }
+        return flag;
+    }
 
+    /* 进行制作，并扣除材料，将物品置入背包 */
+    public void CraftByMaterial(ItemData _item, int count = 1)
+    {
+        foreach (CraftMaterial craftMaterial in _item.craftMaterials)
+        {
+            RemoveStashItem(craftMaterial.itemData, craftMaterial.num * count);
+        }
+        AddInventoryItem(_item, count);
+    }
 }
+

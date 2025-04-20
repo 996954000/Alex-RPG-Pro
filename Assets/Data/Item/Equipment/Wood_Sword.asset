@@ -15,4 +15,48 @@ MonoBehaviour:
   itemName: Wood_Sword
   icon: {fileID: 1025091068, guid: a9ca9a41598dd2e44b125928045c518f, type: 3}
   category: 0
+  craftMaterials:
+  - itemData: {fileID: 11400000, guid: 93df12bf46c39d74eb9f37ee5dadf91a, type: 2}
+    num: 1
+  - itemData: {fileID: 11400000, guid: d1646ad2d14310b4f911cc5fe9c060c6, type: 2}
+    num: 1
   equipmentType: 1
+  strength:
+    value: 2
+    modifier: []
+  agility:
+    value: 0
+    modifier: []
+  intelligence:
+    value: 0
+    modifier: []
+  endurance:
+    value: 0
+    modifier: []
+  maxHealth:
+    value: 0
+    modifier: []
+  armor:
+    value: 0
+    modifier: []
+  magicResistance:
+    value: 0
+    modifier: []
+  avoidChance:
+    value: 0
+    modifier: []
+  physicalDamage:
+    value: 4
+    modifier: []
+  fireDamage:
+    value: 0
+    modifier: []
+  iceDamage:
+    value: 0
+    modifier: []
+  lightDamage:
+    value: 0
+    modifier: []
+  criticalChance:
+    value: 0
+    modifier: []

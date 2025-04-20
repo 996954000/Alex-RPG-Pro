@@ -12,8 +12,8 @@ public class UI_ItemSlot : MonoBehaviour, IPointerDownHandler
 
     public ItemData itemData;
 
-    private Color alphaForOne;
-    private Color alphaForZero;
+    protected Color alphaForOne;
+    protected Color alphaForZero;
     private void Awake()
     {
         itemIcon = GetComponentInChildren<Image>();
@@ -56,7 +56,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerDownHandler
         
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public virtual void OnPointerDown(PointerEventData eventData)
     {
         /* 当当前Slot不为空时才会触发点击事件 */
         if (itemData != null)

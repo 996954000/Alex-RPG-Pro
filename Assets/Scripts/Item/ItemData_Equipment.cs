@@ -25,7 +25,6 @@ public class ItemData_Equipment : ItemData
 
     [Header("defence stat")]
     public Stat maxHealth;
-    public Stat currentHealth;
     public Stat armor;              // 护甲       
     public Stat magicResistance;    //魔法抗性
     public Stat avoidChance;
@@ -39,5 +38,44 @@ public class ItemData_Equipment : ItemData
     public Stat criticalChance;     // 暴击几率
 
     #endregion
+
+    public void AddModifier()
+    {
+        PlayerStat stat = PlayerManager.instance.player.GetComponent<PlayerStat>();
+        stat.strength.AddModifier(strength.getValue());
+        stat.agility.AddModifier(agility.getValue());
+        stat.intelligence.AddModifier(intelligence.getValue());
+        stat.endurance.AddModifier(endurance.getValue());
+
+        stat.maxHealth.AddModifier(maxHealth.getValue());
+        stat.armor.AddModifier(armor.getValue());
+        stat.magicResistance.AddModifier(magicResistance.getValue());
+        stat.avoidChance.AddModifier(avoidChance.getValue());
+
+        stat.physicalDamage.AddModifier(physicalDamage.getValue());
+        stat.fireDamage.AddModifier(fireDamage.getValue());
+        stat.iceDamage.AddModifier(iceDamage.getValue());
+        stat.lightDamage.AddModifier(lightDamage.getValue());
+        stat.criticalChance.AddModifier(criticalChance.getValue());
+    }
+    public void RemoveModifier()
+    {
+        PlayerStat stat = PlayerManager.instance.player.GetComponent<PlayerStat>();
+        stat.strength.RemoveModifier(strength.getValue());
+        stat.agility.RemoveModifier(agility.getValue());
+        stat.intelligence.RemoveModifier(intelligence.getValue());
+        stat.endurance.RemoveModifier(endurance.getValue());
+
+        stat.maxHealth.RemoveModifier(maxHealth.getValue());
+        stat.armor.RemoveModifier(armor.getValue());
+        stat.magicResistance.RemoveModifier(magicResistance.getValue());
+        stat.avoidChance.RemoveModifier(avoidChance.getValue());
+
+        stat.physicalDamage.RemoveModifier(physicalDamage.getValue());
+        stat.fireDamage.RemoveModifier(fireDamage.getValue());
+        stat.iceDamage.RemoveModifier(iceDamage.getValue());
+        stat.lightDamage.RemoveModifier(lightDamage.getValue());
+        stat.criticalChance.RemoveModifier(criticalChance.getValue());
+    }
 
 }
