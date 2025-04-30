@@ -9,13 +9,26 @@ public class ItemObject : MonoBehaviour
     [SerializeField] SpriteRenderer sr;
     [SerializeField] ItemData itemData;
 
-    // Start is called before the first frame update
-
-    void Start()
+    private void OnValidate()
     {
         sr = GetComponent<SpriteRenderer>();
-        sr.sprite = itemData.icon;
-        gameObject.name = "Item Object" + itemData.name;
+        if (itemData == null)
+        {
+            sr.sprite = null;
+            gameObject.name = "Null Item Object";
+        } else
+        {
+            sr.sprite = itemData.icon;
+            gameObject.name = "Item Object" + itemData.name;
+        }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        //sr = GetComponent<SpriteRenderer>();
+        //sr.sprite = itemData.icon;
+        //gameObject.name = "Item Object" + itemData.name;
     }
 
     // Update is called once per frame
@@ -24,7 +37,7 @@ public class ItemObject : MonoBehaviour
         
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void PickUpItem(Collider2D collision)
     {
         if (collision != null && collision.gameObject.GetComponent<Player>() != null)
         {

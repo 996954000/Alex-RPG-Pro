@@ -17,6 +17,7 @@ public struct CraftMaterial
     public int num;
 }
 
+/* CreateAssetMenu设置新建方式 */
 [CreateAssetMenu(fileName = "new Item Data", menuName = "Data/Item")]
 public class ItemData : ScriptableObject
 {
